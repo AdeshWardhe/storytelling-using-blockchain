@@ -1,4 +1,4 @@
-# 📖 Blockchain-Based Collaborative Storytelling Platform
+# Blockchain-Based Collaborative Storytelling Platform
 
 A decentralized storytelling platform that combines collaborative writing, community voting, blockchain technology, and Ethereum smart contracts to create a transparent and immutable storytelling experience.
 
@@ -6,7 +6,7 @@ Users can contribute story segments, vote on proposed continuations, and permane
 
 ---
 
-## 🚀 Project Overview
+## Project Overview
 
 Traditional collaborative storytelling platforms rely on centralized databases where content can be modified, deleted, or controlled by a single authority.
 
@@ -16,7 +16,7 @@ The platform enables multiple users to collaboratively build a story while maint
 
 ---
 
-## ✨ Features
+## Features
 
 * 📚 Collaborative story creation
 * 🗳️ Community voting system
@@ -30,7 +30,7 @@ The platform enables multiple users to collaboratively build a story while maint
 
 ---
 
-## 🎯 Problem Statement
+## Problem Statement
 
 Collaborative storytelling platforms often depend on centralized databases where content can be modified or removed without transparency.
 
@@ -44,7 +44,7 @@ This project solves these challenges by:
 
 ---
 
-## 🏗️ System Architecture
+## System Architecture
 
 ```text
                                             ┌───────────────────────┐
@@ -95,7 +95,7 @@ This project solves these challenges by:
 
 ---
 
-## 🔄 Workflow
+## Workflow
 
 ### 1. Story Submission
 
@@ -142,7 +142,7 @@ Users can verify transaction records through Ethereum explorers.
 
 ---
 
-## 🧱 Block Structure
+## Block Structure
 
 ```json
 {
@@ -158,7 +158,7 @@ Users can verify transaction records through Ethereum explorers.
 
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 ### Backend
 
