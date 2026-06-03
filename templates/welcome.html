@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vault | The Living Manuscript</title>
+<style>
+:root {
+  /* Modern UI Palette */
+  --bg-deep: #050608;
+  --bg-accent: #0c0d12;
+  --gold: #e5c387;
+  --gold-dim: rgba(229, 195, 135, 0.15);
+  --silver: #a0a0a5;
+  --glass: rgba(255, 255, 255, 0.03);
+  
+  /* Classic Map Palette */
+  --paper: #e6d5b8;
+  --ink: #2b1b0e;
+  --accent-brown: #7c4a32;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg-deep);
+  font-family: 'Garamond', serif;
+  color: var(--silver);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* Hide scrollbar */
+html { scrollbar-width: none; }
+body::-webkit-scrollbar { display: none; }
+
+/* --- UTILITIES --- */
+.container { max-width: 1200px; margin: 0 auto; padding: 0 40px; }
+.section-padding { padding: 120px 0; }
+
+/* --- NAVIGATION --- */
+.top-nav {
+  position: fixed;
+  top: 0; width: 100%;
+  padding: 25px 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 1000;
+  background: linear-gradient(to bottom, var(--bg-deep), transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--gold-dim);
+}
+
+.nav-brand {
+  font-size: 0.8rem;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: bold;
+}
+
+.enter-btn {
+  color: var(--bg-deep);
+  background: var(--gold);
+  text-decoration: none;
+  font-family: sans-serif;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  padding: 12px 30px;
+  text-transform: uppercase;
+  transition: 0.4s;
+  border: 1px solid var(--gold);
+}
+
+.enter-btn:hover {
+  background: transparent;
+  color: var(--gold);
+}
+
+/* --- HERO --- */
+.hero {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.manuscript-title {
+  font-size: clamp(3.5rem, 12vw, 9rem);
+  letter-spacing: 30px;
+  margin: 0;
+  color: #fff;
+  font-weight: 100;
+  text-transform: uppercase;
+}
+
+.hero-subtitle {
+  font-family: sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 10px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-top: 10px;
+  opacity: 0.6;
+}
+
+/* --- THE MAP SECTION (WITH SPACING FIX) --- */
+.map-scroll-track { 
+  height: 450vh; 
+  background: var(--bg-deep); 
+}
+
+.map-sticky {
+  position: sticky;
+  top: 0; 
+  height: 100vh; 
+  display: flex; 
+  justify-content: center; 
+  align-items: center;
+}
+
+.map-container {
+  position: relative;
+  width: 90vw; 
+  max-width: 1000px; 
+  height: 65vh; 
+  background: var(--paper);
+  background-image: url("https://www.transparenttextures.com/patterns/papyrys-dark.png");
+  box-shadow: 0 60px 120px -30px rgba(0,0,0,0.9);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.grain-overlay {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  z-index: 5; pointer-events: none; opacity: 0.3;
+}
+
+#svg-map {
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 1;
+  overflow: visible;
+}
+
+#path { fill: none; stroke: var(--ink); stroke-width: 4; stroke-linecap: round; }
+#ink-head { fill: var(--ink); }
+
+.node {
+  position: absolute; 
+  z-index: 10;
+  transform: translate(-50%, -50%) scale(0.9);
+  background: #fff; 
+  padding: 15px 20px; 
+  width: 195px; /* Slimmer width for better spacing */
+  opacity: 0; 
+  transition: 0.7s cubic-bezier(0.2, 1, 0.2, 1);
+  box-shadow: 10px 10px 30px rgba(0,0,0,0.1);
+  border-left: 3px solid var(--gold);
+}
+
+.node.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+.node h4 { margin: 0; font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-brown); }
+.node p { margin: 8px 0 0; color: var(--ink); font-style: italic; font-size: 0.8rem; line-height: 1.4; }
+
+/* --- CHAPTER UI --- */
+.chapter-header {
+  margin-bottom: 60px;
+  border-left: 2px solid var(--gold);
+  padding-left: 25px;
+}
+
+.chapter-header span {
+  font-family: sans-serif;
+  font-size: 0.65rem;
+  color: var(--gold);
+  letter-spacing: 5px;
+  text-transform: uppercase;
+}
+
+.chapter-header h2 {
+  font-size: 3rem;
+  margin: 10px 0;
+  color: #fff;
+  font-weight: 200;
+  letter-spacing: 8px;
+}
+
+.chapter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+}
+
+.chapter-card {
+  background: var(--bg-accent);
+  padding: 40px;
+  border: 1px solid var(--gold-dim);
+  transition: 0.4s;
+}
+
+.chapter-card:hover {
+  transform: translateY(-10px);
+  border-color: var(--gold);
+}
+
+.chapter-card h4 {
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+}
+
+/* --- TECHNICAL LISTS --- */
+.rule-row {
+  display: flex;
+  padding: 30px 0;
+  border-bottom: 1px solid var(--gold-dim);
+  align-items: center;
+}
+
+.rule-label {
+  width: 30%;
+  font-size: 0.7rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.rule-content {
+  width: 70%;
+  font-size: 1rem;
+  color: #fff;
+}
+
+.footer {
+  text-align: center;
+  padding: 150px 0;
+  border-top: 1px solid var(--gold-dim);
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <div class="nav-brand">BASED ON BLOCKCHAIN </div>
+  <a href="/ui" class="enter-btn">ENTER TOME</a>
+</nav>
+
+<section class="hero">
+  <h1 class="manuscript-title">Vault</h1>
+  <div class="hero-subtitle">The Architecture of Eternal Ink</div>
+</section>
+
+<div class="map-scroll-track">
+  <div class="map-sticky">
+    <div class="map-container">
+      <svg class="grain-overlay">
+        <filter id="staticGrain">
+          <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" seed="5" result="noise" />
+          <feDiffuseLighting in="noise" lighting-color="#e6d5b8" surfaceScale="2">
+            <feDistantLight azimuth="45" elevation="60" />
+          </feDiffuseLighting>
+        </filter>
+        <rect width="100%" height="100%" filter="url(#staticGrain)" />
+      </svg>
+      
+      <svg id="svg-map" viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid meet">
+        <path id="path" d="M150,150 C150,420 260,620 260,440 C260,260 520,180 520,360 C520,540 760,540 760,240 C760,80 860,260 860,520" />
+        <circle id="ink-head" r="5" cx="150" cy="150" />
+      </svg>
+
+      <div class="node" id="n1"><h4>01 / Genesis</h4><p>The anchor of our shared history.</p></div>
+      <div class="node" id="n2"><h4>02 / Submit</h4><p>Where every voice finds its place.</p></div>
+      <div class="node" id="n3"><h4>03 / Voting</h4><p>The collective path revealed.</p></div>
+      <div class="node" id="n4"><h4>04 / Finalize</h4><p>Unity forged into the chain.</p></div>
+      <div class="node" id="n5"><h4>05 / Immortal</h4><p>A legacy built by many.</p></div>
+    </div>
+  </div>
+</div>
+
+
+
+<section class="section-padding">
+  <div class="container">
+    <div class="chapter-header">
+      <span>PROTOCOL</span>
+      <h2>The Ledger</h2>
+    </div>
+    <div class="chapter-grid">
+      <div class="chapter-card">
+        <h4>Block Structure</h4>
+        <p>Stores story text, scribe signatures, and timestamps. Each block is a permanent leaf in the manuscript.</p>
+      </div>
+      <div class="chapter-card">
+        <h4>Chain Integrity</h4>
+        <p>Linked by cryptographic hashes. Tampering with the past is made mathematically impossible.</p>
+      </div>
+      <div class="chapter-card">
+        <h4>Immutability</h4>
+        <p>The story grows append-only. No deletions. No censorship. Only the immortal flow of words.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section-padding" style="background: var(--bg-accent);">
+  <div class="container">
+    <div class="chapter-header">
+      <span>INFRASTRUCTURE</span>
+      <h2>The Engine</h2>
+    </div>
+    <div class="rule-row">
+      <div class="rule-label">Core Logic</div>
+      <div class="rule-content">Built with <strong>Flask</strong> and <strong>Socket.IO</strong> for real-time collaboration between all scribes.</div>
+    </div>
+    <div class="rule-row">
+      <div class="rule-label">Structures</div>
+      <div class="rule-content"><strong>CHAIN</strong> (Finalized) / <strong>CANDIDATES</strong> (Proposals) / <strong>STORIES</strong> (Archives)</div>
+    </div>
+    <div class="rule-row">
+      <div class="rule-label">Persistence</div>
+      <div class="rule-content">State is mirrored to <code>state.json</code> for durability across server restarts.</div>
+    </div>
+  </div>
+</section>
+
+<section class="section-padding">
+  <div class="container">
+    <div class="chapter-header">
+      <span>PERSISTENCE</span>
+      <h2>Continuity</h2>
+    </div>
+    <div class="rule-row">
+      <div class="rule-label">Archiving</div>
+      <div class="rule-content">When a saga concludes, the current chain is archived into the STORIES structure, allowing a new Genesis block to begin.</div>
+    </div>
+    <div class="rule-row">
+      <div class="rule-label">Durability</div>
+      <div class="rule-content">Every update is mirrored to a persistent JSON store, ensuring the manuscript survives even if the world resets.</div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <p style="font-size: 1.2rem; letter-spacing: 8px; color: var(--gold); font-weight: 200;">HISTORY IS NOT FOUND. IT IS WRITTEN.</p>
+    <a href="/ui" class="enter-btn" style="margin-top: 50px; display: inline-block;">BEGIN WRITING</a>
+  </div>
+
+  <div class="footer-cre">    
+    <div class="footer-credit">Made with ❤️ and Brownie</div>
+</div>
+</footer>
+
+<script>
+const path = document.getElementById("path");
+const ink = document.getElementById("ink-head");
+const nodes = document.querySelectorAll(".node");
+const length = path.getTotalLength();
+
+path.style.strokeDasharray = length;
+path.style.strokeDashoffset = length;
+
+/**
+ * UPDATED STOPS: 
+ * We pushed stop 4 and 5 apart to prevent them from crowding at the end.
+ */
+const stops = [0.05, 0.28, 0.48, 0.68, 0.98];
+
+function updateNodePositions() {
+  const container = document.querySelector('.map-container');
+  const scaleX = container.clientWidth / 1000;
+  const scaleY = container.clientHeight / 700;
+
+  stops.forEach((p, i) => {
+    const pt = path.getPointAtLength(length * p);
+    nodes[i].style.left = (pt.x * scaleX) + "px";
+    nodes[i].style.top = (pt.y * scaleY) + "px";
+  });
+}
+
+window.addEventListener("load", updateNodePositions);
+window.addEventListener("resize", updateNodePositions);
+
+window.addEventListener("scroll", () => {
+  const track = document.querySelector(".map-scroll-track");
+  const scrollTop = window.scrollY - track.offsetTop;
+  const scrollHeight = track.offsetHeight - window.innerHeight;
+  const progress = Math.max(0, Math.min(1, scrollTop / scrollHeight));
+
+  path.style.strokeDashoffset = length - (length * progress);
+  const head = path.getPointAtLength(length * progress);
+  ink.setAttribute("cx", head.x);
+  ink.setAttribute("cy", head.y);
+
+  stops.forEach((p, i) => {
+    nodes[i].classList.toggle("show", progress >= p);
+  });
+});
+</script>
+
+</body>
+</html>

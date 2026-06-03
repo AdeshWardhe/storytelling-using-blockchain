@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Storytelling Platform</title>
+<style>
+:root {
+  --paper: #f4f1ec;
+  --ink: #2b2b2b;
+  --border: #b5b0a8;
+  --accent: #6b4f3f;
+  --muted: #8c857c;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  height: 100vh;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: Georgia, "Times New Roman", serif;
+  display: flex;
+}
+
+/* Layout */
+.left, .right {
+  width: 50%;
+  padding: 32px;
+  overflow-y: auto;
+}
+
+.left {
+  border-right: 2px solid var(--border);
+}
+
+/* Headings */
+h2, h3 {
+  margin-top: 0;
+  font-weight: normal;
+  letter-spacing: 0.5px;
+}
+
+h2::after {
+  content: "";
+  display: block;
+  width: 80px;
+  margin-top: 6px;
+  border-bottom: 2px solid var(--accent);
+}
+
+/* Story chain blocks */
+#chain .candidate {
+  margin-bottom: 20px;
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  background: #faf8f4;
+}
+
+/* Inputs */
+input, textarea {
+  width: 100%;
+  padding: 10px;
+  font-family: inherit;
+  font-size: 15px;
+  background: #faf8f4;
+  border: 1px solid var(--border);
+  color: var(--ink);
+}
+
+textarea {
+  resize: vertical;
+}
+
+/* Buttons */
+button {
+  margin-top: 10px;
+  padding: 8px 16px;
+  background: none;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-family: inherit;
+  cursor: pointer;
+}
+
+button:hover {
+  background: var(--accent);
+  color: var(--paper);
+}
+
+/* Candidate cards */
+.candidate {
+  margin-bottom: 14px;
+  padding: 14px 16px;
+  border: 1px dashed var(--border);
+  background: #faf8f4;
+}
+
+/* Small text */
+small {
+  color: var(--muted);
+}
+
+#chain {
+  min-height: 300px;
+  line-height: 1.7;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.story-line {
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+.page-controls {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.page-hide {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+.page-show {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.right button {
+  display: inline-block;
+  margin-bottom: 15px;
+}
+
+#notes div {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+textarea {
+  margin-bottom: 10px;
+}
+
+#presence {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 20px;
+  text-align: right;
+}
+
+
+
+
+
+</style>
+
+</head>
+<body>
+
+
+
+<div class="left">
+  <h2>📜 Story Chain</h2>
+
+  <div id="chain"></div>
+
+    <div class="page-controls">
+    <button onclick="prevPage()">⬅ Previous</button>
+    <span id="pageIndicator"></span>
+    <button onclick="nextPage()">Next ➡</button>
+  </div>
+
+</div>
+
+<div class="right">
+
+  <div id="presence"></div>
+
+  <h2>✍️ Suggest Next Part</h2>
+
+  <input id="author" placeholder="Your name" />
+  <textarea id="text" placeholder="Write your suggestion..." rows="4"></textarea>
+
+  <button onclick="submitCandidate()">Submit</button>
+
+  <h3>🗳️ Candidates</h3>
+  <div id="candidates"></div>
+
+  <h3>📝 Discussion Notes</h3>
+
+  <textarea id="noteText" rows="3" placeholder="Write your thought..."></textarea>
+  <button onclick="sendNote()">Add Note</button>
+
+  <div id="notes"></div>
+
+  <br>
+  <button onclick="finalizeStory()">Finalize</button>
+
+</div>
+
+
+
+<!-- Socket.IO client -->
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+
+<script>
+  const socket = io();
+
+  function submitCandidate() {
+    const author = document.getElementById("author").value;
+    const text = document.getElementById("text").value;
+
+    if (!author || !text) {
+      alert("Author and text required");
+      return;
+    }
+
+    socket.emit("submit_candidate", {
+      author: author,
+      text: text
+    });
+
+    document.getElementById("text").value = "";
+  }
+
+
+  // LISTEN for live updates
+socket.on("candidates_update", function(candidates) {
+  const div = document.getElementById("candidates");
+  div.innerHTML = "";
+
+  if (candidates.length === 0) {
+    div.innerHTML = "<p>No candidates yet.</p>";
+    return;
+  }
+
+  candidates.forEach(c => {
+    div.innerHTML += `
+      <div class="candidate">
+        <strong>Author:</strong> ${c.author}<br>
+        <strong>Text:</strong> ${c.text}<br>
+        <strong>Votes:</strong> <span id="votes-${c.hash}">${c.votes}</span><br>
+        <button onclick="vote('${c.prev_hash}', '${c.hash}')">👍 Vote</button>
+      </div>
+    `;
+  });
+});
+
+
+function vote(prevHash, candidateHash) {
+  socket.emit("vote", {
+    prev_hash: prevHash,
+    candidate_hash: candidateHash
+  });
+}
+
+
+function finalizeStory() {
+  socket.emit("finalize");
+}
+
+
+
+
+socket.on("presence_update", count => {
+  document.getElementById("presence").innerText =
+    `✒️ ${count} people are present`;
+});
+
+
+
+  // ===== PAGE SETTINGS =====
+  let PARAGRAPHS_PER_PAGE = 4;
+
+  let pages = [];
+  let currentPage = 0;
+
+  // ===== SPLIT STORY INTO PAGES =====
+  function makePages(chain) {
+    let result = [];
+    let page = [];
+
+    for (let i = 0; i < chain.length; i++) {
+      page.push(chain[i]);
+
+      if (page.length === PARAGRAPHS_PER_PAGE) {
+        result.push(page);
+        page = [];
+      }
+    }
+
+    if (page.length > 0) {
+      result.push(page);
+    }
+
+    return result;
+  }
+
+  // ===== SHOW CURRENT PAGE =====
+function showPage() {
+  let chainDiv = document.getElementById("chain");
+
+  // start transition (hide page)
+  chainDiv.classList.add("page-hide");
+
+  setTimeout(function () {
+    chainDiv.innerHTML = "";
+
+    if (pages.length === 0) return;
+
+    let page = pages[currentPage];
+
+    for (let i = 0; i < page.length; i++) {
+      let div = document.createElement("div");
+      div.className = "story-line";
+      div.innerText = page[i].text;
+      chainDiv.appendChild(div);
+    }
+
+    document.getElementById("pageIndicator").innerText =
+      "Page " + (currentPage + 1) + " of " + pages.length;
+
+    // show new page
+    chainDiv.classList.remove("page-hide");
+    chainDiv.classList.add("page-show");
+
+  }, 200);
+}
+
+
+  // ===== PAGE NAVIGATION =====
+  function nextPage() {
+    if (currentPage < pages.length - 1) {
+      currentPage++;
+      showPage();
+    }
+  }
+
+  function prevPage() {
+    if (currentPage > 0) {
+      currentPage--;
+      showPage();
+    }
+  }
+
+  // ===== SOCKET: UPDATE STORY =====
+  socket.on("chain_update", function(chain) {
+    pages = makePages(chain);
+    currentPage = pages.length - 1; // go to newest page
+    showPage();
+  });
+
+
+
+
+
+  // store notes locally
+let discussionNotes = [];
+
+// send note to server
+function sendNote() {
+  let text = document.getElementById("noteText").value;
+
+  if (text.trim() === "") return;
+
+  socket.emit("add_note", { text: text });
+  document.getElementById("noteText").value = "";
+}
+
+// receive updated notes
+socket.on("notes_update", function(notes) {
+  discussionNotes = notes;
+  showNotes();
+});
+
+// show notes on screen
+function showNotes() {
+  let div = document.getElementById("notes");
+  div.innerHTML = "";
+
+  for (let i = 0; i < discussionNotes.length; i++) {
+    let p = document.createElement("div");
+    p.innerText = "• " + discussionNotes[i];
+    div.appendChild(p);
+  }
+}
+
+
+socket.on("finalize_failed", function(data) {
+  if (data.reason === "tie_reset") {
+    alert(
+      "⚠️ Tie detected.\n\nVotes have been reset.\nPlease discuss and vote again."
+    );
+  }
+});
+
+
+
+
+
+
+
+
+
+
+</script>
+
+</body>
+</html>

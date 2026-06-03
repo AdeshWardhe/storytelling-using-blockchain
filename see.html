@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Aethelgard | Architecture of the Eternal Ink</title>
+
+<style>
+:root {
+  --ink: #2b1b0e;
+  --accent: #7c4a32;
+  --paper: #e6d5b8;
+  --gold: #d4af37;
+  --dark-bg: #0a0a0a;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--dark-bg);
+  font-family: "Garamond", serif;
+  color: var(--paper);
+  line-height: 1.6;
+}
+
+/* Hide scrollbar */
+html { scrollbar-width: none; }
+body::-webkit-scrollbar { display: none; }
+
+/* --- NAVIGATION --- */
+.top-nav {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  padding: 20px 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 1000;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+}
+
+.nav-brand {
+  font-size: 0.8rem;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.enter-btn-fixed {
+  color: #000;
+  background: var(--gold);
+  text-decoration: none;
+  font-size: 0.7rem;
+  font-weight: bold;
+  letter-spacing: 2px;
+  padding: 10px 25px;
+  text-transform: uppercase;
+  border-radius: 2px;
+}
+
+/* --- HERO --- */
+.hero {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.manuscript-title {
+  font-size: clamp(3rem, 10vw, 7rem);
+  letter-spacing: 25px;
+  margin: 0;
+  color: #fff;
+  font-weight: 200;
+  text-transform: uppercase;
+}
+
+/* --- THE INTERACTIVE MAP SECTION --- */
+.map-scroll-track {
+  height: 450vh;
+  position: relative;
+}
+
+.map-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.map {
+  position: relative;
+  width: 1000px;
+  height: 650px;
+  background: var(--paper);
+  background-image: url("https://www.transparenttextures.com/patterns/papyrys-dark.png");
+  border-radius: 2px;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.8);
+  overflow: hidden;
+}
+
+/* GRAIN FILTER */
+.grain-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0.35;
+}
+
+#svg-map {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+#path { fill: none; stroke: var(--ink); stroke-width: 4; stroke-linecap: round; }
+#ink-head { fill: var(--ink); }
+
+.node {
+  position: absolute;
+  z-index: 10;
+  transform: translate(-50%, -50%) scale(0.9);
+  background: white;
+  border: 1px solid rgba(0,0,0,0.1);
+  box-shadow: 15px 15px 40px rgba(0,0,0,0.15);
+  padding: 18px;
+  width: 220px;
+  opacity: 0;
+  transition: all 0.5s ease;
+}
+
+.node.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+.node h4 { margin: 0 0 5px; color: var(--accent); text-transform: uppercase; font-size: 0.85rem; border-bottom: 1px solid #eee; }
+.node p { margin: 0; font-size: 0.8rem; color: #444; font-style: italic; }
+
+/* --- TECHNICAL CHAPTERS --- */
+.chapter {
+  padding: 100px 10%;
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.chapter-light { background: var(--paper); color: var(--ink); }
+.chapter-dark { background: #0e0e0e; color: var(--paper); border-top: 1px solid #222; }
+
+.chapter-title {
+  font-size: 2.5rem;
+  text-transform: uppercase;
+  letter-spacing: 10px;
+  margin-bottom: 50px;
+  text-align: center;
+}
+
+.chapter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+}
+
+.chapter-card {
+  padding: 30px;
+  border: 1px solid rgba(0,0,0,0.1);
+  background: rgba(255,255,255,0.2);
+}
+
+.chapter-dark .chapter-card {
+  border-color: var(--accent);
+  background: rgba(255,255,255,0.03);
+}
+
+.chapter-card h4 {
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-top: 0;
+  letter-spacing: 2px;
+}
+
+.rules {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.rules p {
+  padding: 15px 0;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+  margin: 0;
+}
+
+.rules strong { color: var(--gold); letter-spacing: 1px; }
+
+.footer {
+  padding: 100px 0;
+  text-align: center;
+  background: #000;
+}
+
+</style>
+</head>
+
+<body>
+
+<nav class="top-nav">
+  <div class="nav-brand">Aethelgard Protocol</div>
+  <a href="/ui" class="enter-btn-fixed">Enter Tome</a>
+</nav>
+
+<section class="hero">
+  <h1 class="manuscript-title">Aethelgard</h1>
+  <p style="letter-spacing: 5px; opacity: 0.6; margin-top: 20px;">The Architecture of Eternal Collaboration</p>
+</section>
+
+<div class="map-scroll-track">
+  <div class="map-sticky">
+    <div class="map">
+      
+      <svg class="grain-overlay">
+        <filter id="staticGrain">
+          <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="5" result="noise" />
+          <feDiffuseLighting in="noise" lighting-color="var(--paper)" surfaceScale="2">
+            <feDistantLight azimuth="45" elevation="60" />
+          </feDiffuseLighting>
+        </filter>
+        <rect width="100%" height="100%" filter="url(#staticGrain)" />
+      </svg>
+
+      <svg id="svg-map" viewBox="0 0 1000 700">
+        <path id="path" d="M150,150 C150,420 260,620 260,440 C260,260 520,180 520,360 C520,540 760,540 760,240 C760,80 860,260 860,520" />
+        <circle id="ink-head" r="5" cx="150" cy="150" />
+      </svg>
+
+      <div class="node" id="n1"><h4>Genesis</h4><p>The anchor of our shared history.</p></div>
+      <div class="node" id="n2"><h4>Submit</h4><p>Where every voice finds its place.</p></div>
+      <div class="node" id="n3"><h4>Voting</h4><p>The collective path revealed.</p></div>
+      <div class="node" id="n4"><h4>Finalize</h4><p>Unity forged into the chain.</p></div>
+      <div class="node" id="n5"><h4>Immortal</h4><p>A legacy built by many.</p></div>
+    </div>
+  </div>
+</div>
+
+<section class="chapter chapter-light">
+  <h2 class="chapter-title">Blockchain in This Project</h2>
+  <div class="chapter-grid">
+    <div class="chapter-card">
+      <h4>Block Structure</h4>
+      <p>Each block stores story text, author, timestamp, previous hash, and its own cryptographic hash. A block represents one accepted continuation.</p>
+    </div>
+    <div class="chapter-card">
+      <h4>Chain Formation</h4>
+      <p>Blocks are linked by storing the previous block’s hash. Any modification breaks the chain, making history tamper-evident.</p>
+    </div>
+    <div class="chapter-card">
+      <h4>Immutability</h4>
+      <p>Once a block is finalized, it is never modified or deleted. The story grows append-only for eternity.</p>
+    </div>
+  </div>
+</section>
+
+<section class="chapter chapter-dark">
+  <h2 class="chapter-title">Backend Architecture</h2>
+  <div class="rules">
+    <p>The backend is implemented using <strong>Flask</strong> and <strong>Socket.IO</strong>.</p>
+    <p>Real-time communication is handled via <strong>WebSockets</strong> for instant updates.</p>
+    <p><strong>CHAIN</strong> — The finalized immutable ledger of the story.</p>
+    <p><strong>CANDIDATES</strong> — Temporary proposed continuations awaiting consensus.</p>
+    <p><strong>STORIES</strong> — Archived historical chains of completed works.</p>
+  </div>
+</section>
+
+
+
+<section class="chapter chapter-light">
+  <h2 class="chapter-title">Data Flow</h2>
+  <div class="chapter-grid">
+    <div class="chapter-card">
+      <h4>User Input</h4>
+      <p>Scribes submit story text from the frontend via Socket.IO events to the backend oracle.</p>
+    </div>
+    <div class="chapter-card">
+      <h4>Candidate Creation</h4>
+      <p>Backend generates a candidate block using the last block’s hash and stores it in the pool.</p>
+    </div>
+    <div class="chapter-card">
+      <h4>Broadcast</h4>
+      <p>All connected clients receive live cryptographic updates when candidates or votes change.</p>
+    </div>
+  </div>
+</section>
+
+<section class="chapter chapter-dark">
+  <h2 class="chapter-title">Voting & Consensus</h2>
+  <div class="rules">
+    <p>Each candidate belongs to a specific previous block in the sequence.</p>
+    <p>Users vote in real time; duplicate voting is prevented via session IDs.</p>
+    <p>The candidate with the <strong>highest votes</strong> is selected for finalization.</p>
+    <p>If a tie occurs, votes are reset, encouraging further collaboration and discussion.</p>
+  </div>
+</section>
+
+<section class="chapter chapter-light">
+  <h2 class="chapter-title">Block Finalization</h2>
+  <div class="chapter-grid">
+    <div class="chapter-card">
+      <h4>Winner Selection</h4>
+      <p>The most voted candidate is chosen. Ties are explicitly detected and handled by the protocol.</p>
+    </div>
+    <div class="chapter-card">
+      <h4>Hash Generation</h4>
+      <p>A unique cryptographic hash is generated using current data and the ancestor's seal.</p>
+    </div>
+    <div class="chapter-card">
+      <h4>Chain Update</h4>
+      <p>The block is appended to the chain, and candidates are purged from the temporal pool.</p>
+    </div>
+  </div>
+</section>
+
+<section class="chapter chapter-dark">
+  <h2 class="chapter-title">Persistence</h2>
+  <div class="rules">
+    <p>New stories archive the current chain into the <strong>STORIES</strong> structure.</p>
+    <p>A new <strong>Genesis block</strong> initializes the next era of collaboration.</p>
+    <p>All state is saved to <code>state.json</code> after every update for durability.</p>
+    <p>This guarantees the manuscript survives even through server restarts.</p>
+  </div>
+</section>
+
+<footer class="footer">
+  <p style="font-style: italic; color: var(--gold);">“A story written alone fades. A story written together becomes history.”</p>
+  <a href="/ui" class="enter-btn-fixed" style="margin-top: 30px; display: inline-block;">Begin Writing</a>
+</footer>
+
+<script>
+const path = document.getElementById("path");
+const ink = document.getElementById("ink-head");
+const nodes = document.querySelectorAll(".node");
+const length = path.getTotalLength();
+
+path.style.strokeDasharray = length;
+path.style.strokeDashoffset = length;
+
+const stops = [0.05, 0.28, 0.50, 0.72, 0.93];
+
+stops.forEach((p, i) => {
+  const pt = path.getPointAtLength(length * p);
+  nodes[i].style.left = pt.x + "px";
+  nodes[i].style.top = pt.y + "px";
+});
+
+window.addEventListener("scroll", () => {
+  const track = document.querySelector(".map-scroll-track");
+  const scrollTop = window.scrollY - track.offsetTop;
+  const scrollHeight = track.offsetHeight - window.innerHeight;
+  const progress = Math.max(0, Math.min(1, scrollTop / scrollHeight));
+
+  path.style.strokeDashoffset = length - (length * progress);
+
+  const head = path.getPointAtLength(length * progress);
+  ink.setAttribute("cx", head.x);
+  ink.setAttribute("cy", head.y);
+
+  stops.forEach((p, i) => {
+    nodes[i].classList.toggle("show", progress >= p);
+  });
+});
+</script>
+
+</body>
+</html>

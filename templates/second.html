@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Storytelling Platform</title>
+<style>
+:root {
+  --paper: #e6d5b8;      
+  --ink: #2b261e;        
+  --border: #b0a084;     
+  --accent: #7c4a32;     
+  --muted: #8c8172;      
+  --highlight: #fdfaf3;  
+  --shadow: rgba(0,0,0,0.5);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  height: 100vh;
+  background: radial-gradient(circle at center, #2c3e50 0%, #000000 100%);
+  color: var(--ink);
+  font-family: "Georgia", serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  perspective: 2000px;
+  overflow: hidden; /* Keeps the desk clean */
+}
+
+/* --- LEFT SIDE: THE BOTTLED SCRIPT --- */
+.left {
+  width: 45%;
+  height: 92vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.book-container {
+  position: relative;
+  flex-grow: 1;
+  background: var(--paper);
+  border-radius: 60px 15px 15px 60px; /* Bottle Silhouette */
+  box-shadow: -20px 30px 60px rgba(0,0,0,0.7);
+  overflow: hidden; /* This is vital to keep ghost shadows inside the bottle */
+  border: 1px solid rgba(255,255,255,0.1);
+  
+  /* Lined paper + water stains + papyrus texture */
+    background-image:
+    linear-gradient(
+      rgba(0, 0, 0, 0.25),
+      rgba(0, 0, 0, 0.25)
+    ),
+    url("https://www.transparenttextures.com/patterns/papyrys-dark.png");
+
+  background-blend-mode: soft-light
+}
+
+/* 1. THE RIBBON (Layered above shadows) */
+.book-container::before {
+  content: "";
+  position: absolute;
+  top: -5px; 
+  left: 25px; 
+  width: 22px;
+  height: var(--story-progress, 40px); 
+  background: #8b0000; 
+  clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 50% 90%, 0% 100%);
+  box-shadow: 2px 5px 10px rgba(0,0,0,0.4);
+  z-index: 10; 
+  pointer-events: none;
+  transition: height 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  background-image: linear-gradient(90deg, rgba(0,0,0,0.2) 0%, transparent 50%, rgba(255,255,255,0.1) 100%);
+}
+
+/* 2. THE GLASS SHINE (Layered on the very top) */
+.book-container::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(110deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0) 20%, rgba(255,255,255,0.15) 35%, rgba(255,255,255,0) 100%);
+  pointer-events: none;
+  z-index: 20;
+}
+
+#chain {
+  padding: 80px 100px 60px 80px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.story-line {
+  position: relative;
+  margin-bottom: 30px;
+  font-size: 1.45rem;
+  line-height: 2.08;
+  text-indent: 40px;
+  color: var(--ink);
+  font-family: "Garamond", serif;
+  
+  /* THIS IS THE FIX: Reserve 140px on the right where text cannot go */
+  padding-right: 140px; 
+  display: block;
+}
+
+
+
+
+
+
+
+.ghost-cursor {
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  background: rgba(124, 74, 50, 0.4); 
+  border-radius: 50%;
+  /* We remove the filter from here... */
+  pointer-events: none;
+  z-index: 5;
+  transition: all 0.1s linear;
+}
+
+
+
+/* --- GHOST SHADOWS (Layered in the middle) --- */
+.ghost-cursor::before {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: inherit;
+  border-radius: 50%;
+  filter: blur(5px); /* Only the dot is blurry now! */
+}
+
+.ghost-label {
+  position: absolute;
+  top: 20px; 
+  left: 10px;
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+  font-weight: bold;
+  color: #ffffff; /* Make it white or bright to stand out */
+  background: #7c4a32; /* Dark ink background */
+  padding: 2px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  filter: none !important; /* Forces the text to stay sharp */
+  z-index: 100; /* Ensures it sits above the smudge */
+}
+
+/* --- RIGHT SIDE: THE GRAINY WORK DESK --- */
+.right {
+  width: 45%;
+  height: 92vh;
+  padding: 40px;
+  background-color: #f7f3e9;
+  background-image: 
+    radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.04) 100%),
+    url("https://www.transparenttextures.com/patterns/handmade-paper.png");
+  border-radius: 0 15px 15px 0;
+  box-shadow: 20px 30px 60px rgba(0,0,0,0.6);
+  overflow-y: auto;
+  border: 1px solid rgba(0,0,0,0.2);
+  border-left: 12px solid #1a110a; /* Leather Spine */
+  
+}
+
+/* Buttons like Wax Seals */
+button {
+  padding: 12px 24px;
+  background: #7b1d1d;
+  color: #fdfaf3;
+  border: 1px solid #5a0000;
+  border-radius: 40px;
+  font-family: "Georgia", serif;
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 2px 4px 8px rgba(0,0,0,0.4);
+  transition: 0.2s;
+  margin: 5px 0;
+}
+
+button:hover {
+  background: #a31111;
+  transform: translateY(-2px);
+}
+
+/* Inputs with rough paper feel */
+input, textarea {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 12px;
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid var(--border);
+  font-family: "Courier New", Courier, monospace;
+}
+
+
+
+
+.story-author-hover {
+  position: absolute;
+  /* Lock the name to the far right inside that 'Safe Zone' */
+  right: 10px; 
+  top: 5px; 
+  
+  font-size: 0.85rem;
+  font-family: "Courier New", monospace;
+  font-style: italic;
+  font-weight: bold;
+  color: #7c4a32;
+  
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  white-space: nowrap; /* Prevents the name from squishing */
+}
+
+
+/* Author label 
+.story-author-hover {
+  position: absolute;
+  right: 12px;
+  bottom: -10px;
+
+  font-size: 0.85rem;
+  font-family: "Courier New", monospace;
+  font-style: italic;
+  color: #5a3e2b;
+
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
+}
+  */
+
+
+
+/* Reveal author */
+.story-line:hover .story-author-hover {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+
+/* 🌙 Warm Manuscript Dark Mode */
+body.dark-mode {
+  --paper: #2a211b;        /* dark parchment */
+  --ink: #f2e8dc;          /* ivory ink */
+  --border: #4a3a2a;
+  --accent: #cbb89d;       /* faded gold */
+  --muted: #a8977a;
+  --highlight: rgba(203, 184, 157, 0.18);
+  background: radial-gradient(circle at center, #2b2118 0%, #0f0b08 100%);
+}
+
+body.dark-mode .right {
+  background-color: #1f1813;
+  background-image:
+    radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.4) 100%),
+    url("https://www.transparenttextures.com/patterns/papyrys-dark.png");
+  color: var(--ink);
+}
+
+body.dark-mode .book-container {
+  box-shadow: -20px 30px 60px rgba(0,0,0,0.9);
+}
+
+/* ☀️ DAY MODE (default) */
+body {
+  --paper: #e6d5b8;
+  --ink: #2b261e;   /* DARK ink */
+  --border: #b0a084;
+  --accent: #7c4a32;
+}
+
+/* 🌙 Warm Manuscript Dark Mode - Fix Highlight */
+body.dark-mode .story-line:hover .story-text {
+  /* This uses a dark gold glow that lets white text stay readable */
+  background: rgba(203, 184, 157, 0.25); 
+  box-shadow: 0 0 15px rgba(203, 184, 157, 0.1);
+  color: #ffffff; /* Ensures the text is bright white */
+}
+
+/* Also, make sure the Author name is readable in Dark Mode */
+body.dark-mode .story-author-hover {
+  color: var(--accent); /* Uses the gold accent instead of brown ink */
+}
+
+
+
+/* Story container */
+.story-line {
+  position: relative;
+  margin-bottom: 30px;
+  font-size: 1.45rem;
+  line-height: 2.08;
+  text-indent: 0px;
+  text-align: left;
+  color: var(--ink);
+  font-family: "Garamond", serif;
+  
+  /* THIS IS THE SECRET: Reserve space so text wraps before the name */
+  padding-right: 150px;
+  padding-left: 20px;
+  display: block;
+  width: 100%;
+}
+
+/* Actual text */
+/* 2. The Text Highlight */
+.story-text {
+  display: inline;
+  padding: 2px 8px;
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+/* Highlight ONLY the text */
+.story-line:hover .story-text {
+  background: var(--author-color);
+
+}
+
+
+
+
+</style>
+
+</head>
+<body>
+
+
+
+<div class="left">
+  <div class="book-container">
+    <div class="book-spine"></div>
+    <div id="chain" class="page-content">
+      </div>
+  </div>
+
+  <div class="page-controls">
+    <button onclick="prevPage()">⬅ Previous</button>
+    <span id="pageIndicator"></span>
+    <button onclick="nextPage()">Next ➡</button>
+  </div>
+</div>
+
+<div class="right">
+
+  <button onclick="toggleDarkMode()" id="modeToggle">
+  🌙 Night Reading
+  </button>
+
+  <button id="newStoryBtn" onclick="startNewStory()" style="display:none;">
+  📖 New Story
+</button>
+
+  <div id="presence"></div>
+
+  <h2>✍️ Suggest Next Part</h2>
+
+  <input id="author" placeholder="Your name" />
+  <textarea id="text" placeholder="Write your suggestion..." rows="4"></textarea>
+
+  <button onclick="submitCandidate()">Submit</button>
+
+  <h3>🗳️ Candidates</h3>
+  <div id="candidates"></div>
+
+  <h3>📝 Discussion Notes</h3>
+
+  <textarea id="noteText" rows="3" placeholder="Write your thought..."></textarea>
+  <button onclick="sendNote()">Add Note</button>
+
+  <div id="notes"></div>
+
+  <br>
+  <button onclick="finalizeStory()">Finalize</button>
+
+</div>
+
+
+
+<!-- Socket.IO client -->
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+
+<script>
+
+
+  let isOwner = false;
+
+  const socket = io();
+
+  function submitCandidate() {
+    const author = document.getElementById("author").value;
+    const text = document.getElementById("text").value;
+
+    if (!author || !text) {
+      alert("Author and text required");
+      return;
+    }
+
+    socket.emit("submit_candidate", {
+      author: author,
+      text: text
+    });
+
+    document.getElementById("text").value = "";
+  }
+
+
+  // LISTEN for live updates
+socket.on("candidates_update", function(candidates) {
+  const div = document.getElementById("candidates");
+  div.innerHTML = "";
+
+  if (candidates.length === 0) {
+    div.innerHTML = "<p>No candidates yet.</p>";
+    return;
+  }
+
+  candidates.forEach(c => {
+    div.innerHTML += `
+      <div class="candidate">
+        <strong>Author:</strong> ${c.author}<br>
+        <strong>Text:</strong> ${c.text}<br>
+        <strong>Votes:</strong> <span id="votes-${c.hash}">${c.votes}</span><br>
+        <button onclick="vote('${c.prev_hash}', '${c.hash}')">👍 Vote</button>
+      </div>
+    `;
+  });
+});
+
+
+function vote(prevHash, candidateHash) {
+  socket.emit("vote", {
+    prev_hash: prevHash,
+    candidate_hash: candidateHash
+  });
+}
+
+
+function finalizeStory() {
+  socket.emit("finalize");
+}
+
+
+
+
+socket.on("presence_update", count => {
+  document.getElementById("presence").innerText =
+    `✒️ ${count} people are present`;
+});
+
+
+
+  // ===== PAGE SETTINGS =====
+  let PARAGRAPHS_PER_PAGE = 4;
+
+  let pages = [];
+  let currentPage = 0;
+
+  // ===== SPLIT STORY INTO PAGES =====
+  function makePages(chain) {
+    let result = [];
+    let page = [];
+
+    for (let i = 0; i < chain.length; i++) {
+      page.push(chain[i]);
+
+      if (page.length === PARAGRAPHS_PER_PAGE) {
+        result.push(page);
+        page = [];
+      }
+    }
+
+    if (page.length > 0) {
+      result.push(page);
+    }
+
+    return result;
+  }
+
+  // ===== SHOW CURRENT PAGE =====
+function showPage(direction) {
+  let chainDiv = document.getElementById("chain");
+
+  // 1. Add the "Turn" animation based on direction
+  if (direction === "next") {
+    chainDiv.classList.add("page-turn-next");
+  } else if (direction === "prev") {
+    chainDiv.classList.add("page-turn-prev");
+  }
+
+  setTimeout(function () {
+    chainDiv.innerHTML = "";
+    if (pages.length === 0) return;
+
+    let page = pages[currentPage];
+
+    for (let i = 0; i < page.length; i++) {
+      let div = document.createElement("div");
+      div.className = "story-line";
+
+      const author = page[i].author || "Unknown";
+      const color = getAuthorColor(author);
+
+      div.style.setProperty("--author-color", color);
+
+      div.innerHTML = `
+        <span class="story-text">${page[i].text}</span>
+        <span class="story-author-hover">— ${author}</span>
+      `;
+
+  chainDiv.appendChild(div);
+}
+
+
+    document.getElementById("pageIndicator").innerText =
+      "Page " + (currentPage + 1) + " of " + pages.length;
+
+    // 2. Remove animations and show the new page
+    chainDiv.classList.remove("page-turn-next", "page-turn-prev");
+    chainDiv.classList.add("page-show");
+
+  }, 400); // 400ms gives time for the "flip" to start
+}
+
+// Update your Navigation buttons to pass the direction
+function nextPage() {
+  if (currentPage < pages.length - 1) {
+    currentPage++;
+    showPage("next");
+  }
+}
+
+function prevPage() {
+  if (currentPage > 0) {
+    currentPage--;
+    showPage("prev");
+  }
+}
+
+// Update the socket listener too
+socket.on("chain_update", function(chain) {
+  pages = makePages(chain);
+  currentPage = pages.length - 1; 
+  showPage("next"); // Show newest part with a flip
+});
+
+
+  // ===== PAGE NAVIGATION =====
+  function nextPage() {
+    if (currentPage < pages.length - 1) {
+      currentPage++;
+      showPage();
+    }
+  }
+
+  function prevPage() {
+    if (currentPage > 0) {
+      currentPage--;
+      showPage();
+    }
+  }
+
+  // ===== SOCKET: UPDATE STORY =====
+  socket.on("chain_update", function(chain) {
+    pages = makePages(chain);
+    currentPage = pages.length - 1; // go to newest page
+    showPage();
+  });
+
+
+
+
+
+  // store notes locally
+let discussionNotes = [];
+
+// send note to server
+function sendNote() {
+  let text = document.getElementById("noteText").value;
+
+  if (text.trim() === "") return;
+
+  socket.emit("add_note", { text: text });
+  document.getElementById("noteText").value = "";
+}
+
+// receive updated notes
+socket.on("notes_update", function(notes) {
+  discussionNotes = notes;
+  showNotes();
+});
+
+// show notes on screen
+function showNotes() {
+  let div = document.getElementById("notes");
+  div.innerHTML = "";
+
+  for (let i = 0; i < discussionNotes.length; i++) {
+    let p = document.createElement("div");
+    p.innerText = "• " + discussionNotes[i];
+    div.appendChild(p);
+  }
+}
+
+
+socket.on("finalize_failed", function(data) {
+  if (data.reason === "tie_reset") {
+    alert(
+      "⚠️ Tie detected.\n\nVotes have been reset.\nPlease discuss and vote again."
+    );
+  }
+});
+
+socket.on("chain_update", function(chain) {
+  pages = makePages(chain);
+  currentPage = pages.length - 1; 
+  
+  // NEW: Calculate progress and grow the ribbon!
+  // It starts at 40px and grows 20px for every page added.
+  let newHeight = 40 + (pages.length * 20);
+  document.querySelector('.book-container').style.setProperty('--story-progress', newHeight + 'px');
+  
+  showPage("next"); 
+});
+
+
+// 1. First, define the username at the top of your script
+const myUsername = prompt("Enter your Explorer name:") || "Guest";
+
+// 2. The Ghost Shadow Logic
+const book = document.querySelector('.book-container');
+
+book.addEventListener('mousemove', (e) => {
+  const rect = book.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+
+  socket.emit('mouse_move', { 
+    x: x, 
+    y: y, 
+    username: myUsername 
+  });
+});
+
+// NEW: Hide your shadow when you move to the right-side desk
+book.addEventListener('mouseleave', () => {
+  socket.emit('mouse_leave');
+});
+
+socket.on('show_mouse', (data) => {
+  let shadow = document.getElementById('shadow-' + data.id);
+  
+  if (!shadow) {
+    shadow = document.createElement('div');
+    shadow.id = 'shadow-' + data.id;
+    shadow.className = 'ghost-cursor';
+    
+    // Create label
+    let label = document.createElement('span');
+    label.className = 'ghost-label';
+    label.id = 'label-' + data.id; 
+    
+    shadow.appendChild(label);
+    book.appendChild(shadow);
+  }
+  
+  // Find the label inside the shadow and update the name
+  let label = shadow.querySelector('.ghost-label');
+  if (label) {
+    label.innerText = data.username || "Guest";
+  }
+  
+  shadow.style.display = 'block';
+  shadow.style.left = data.x + 'px';
+  shadow.style.top = data.y + 'px';
+});
+
+// NEW: Hide shadows when others leave the book area
+socket.on('hide_mouse', (id) => {
+  let shadow = document.getElementById('shadow-' + id);
+  if (shadow) shadow.style.display = 'none';
+});
+
+// NEW: Cleanup when someone closes the tab
+socket.on('remove_mouse', (id) => {
+  let shadow = document.getElementById('shadow-' + id);
+  if (shadow) shadow.remove();
+});
+
+const authorColors = {};
+const softPalette = [
+  "#e6d5b8", // parchment gold
+  "#d8e2dc", // sage paper
+  "#f1e3d3", // faded peach
+  "#e0c3fc", // lavender dust
+  "#dbe7e4", // misty blue
+  "#f6dfeb"  // rose paper
+];
+
+function getAuthorColor(author) {
+  if (!authorColors[author]) {
+    authorColors[author] =
+      softPalette[Object.keys(authorColors).length % softPalette.length];
+  }
+  return authorColors[author];
+}
+
+function toggleDarkMode() {
+  document.body.classList.toggle("dark-mode");
+
+  const btn = document.getElementById("modeToggle");
+  btn.innerText = document.body.classList.contains("dark-mode")
+    ? "☀ Day Reading"
+    : "🌙 Night Reading";
+}
+
+
+
+function startNewStory() {
+  const author = prompt("Author of the new story?");
+  if (!author) return;
+
+  const title = prompt("Opening line / title?");
+  if (!title) return;
+
+  socket.emit("new_story", { author, title });
+}
+
+function startNewStory() {
+  const author = prompt("Author of the new story?");
+  if (!author) return;
+
+  const title = prompt("Opening line / title?");
+  if (!title) return;
+
+  socket.emit("new_story", { author, title });
+}
+
+
+
+socket.on("story_owner", function(data) {
+  console.log("STORY OWNER EVENT:", data);
+  console.log("MY SOCKET ID:", socket.id);
+
+  const btn = document.getElementById("newStoryBtn");
+  if (!btn) return;
+
+  if (data.owner === socket.id) {
+    btn.style.display = "block";
+  } else {
+    btn.style.display = "none";
+  }
+});
+
+
+
+// Load existing story when page opens
+fetch("/chain")
+  .then(res => res.json())
+  .then(chain => {
+    if (!chain || chain.length === 0) return;
+
+    pages = makePages(chain);
+    currentPage = pages.length - 1;
+    showPage(); // no animation needed on load
+  });
+
+
+
+
+
+  
+
+</script>
+
+</body>
+</html>
