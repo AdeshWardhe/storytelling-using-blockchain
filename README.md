@@ -58,7 +58,7 @@ Users can collaboratively build stories, submit continuations, vote on story seg
 
 Hovering over finalized story segments reveals the contributing author, improving transparency and contributor recognition.
 
-![Author Attribution](hover_reveal the author.png)
+![Author Attribution](hover_reveal_the_author.png)
 
 ---
 
