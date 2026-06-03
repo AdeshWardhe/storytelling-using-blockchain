@@ -44,6 +44,50 @@ This project solves these challenges by:
 
 ---
 
+## 📸 Screenshots
+
+### Collaborative Storytelling Interface
+
+Users can collaboratively build stories, submit continuations, vote on story segments, and interact in real time.
+
+![Collaborative Storytelling Interface](actual.png)
+
+---
+
+### Story Author Attribution
+
+Hovering over finalized story segments reveals the contributing author, improving transparency and contributor recognition.
+
+![Author Attribution](hover_reveal the author.png)
+
+---
+
+### Ethereum Transaction Verification
+
+When a story segment is finalized, a blockchain transaction is created and recorded on the Ethereum Sepolia Test Network.
+
+![Ethereum Transaction Verification](transaction_on_website.png)
+
+---
+
+### Smart Contract Transaction History
+
+All finalized story contributions can be verified through the deployed smart contract and viewed on Etherscan.
+
+![Smart Contract Transaction History](all_prev_transaction.png)
+
+---
+
+### Backend Mining and Blockchain Logs
+
+The backend performs Proof-of-Work mining, block generation, blockchain updates, and Ethereum transaction submission.
+
+![Backend Logs](logs_in_terminal.png)
+
+---
+
+---
+
 ## System Architecture
 
 ```text
