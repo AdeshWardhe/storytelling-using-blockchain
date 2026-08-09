@@ -54,7 +54,7 @@ def load_state_from_file():
     """
     p = Path(STATE_FILE)
     if not p.exists():
-        return None, None
+        return None, None, None
     try:
         with p.open('r', encoding='utf-8') as f:
             state = json.load(f)
@@ -63,9 +63,8 @@ def load_state_from_file():
         stories = state.get("stories", [])
         return chain, candidates, stories
     except Exception as e:
-        # Print error so you can debug issues with state.json
         print("Error loading state:", e)
-        return None, None
+        return None, None, None
 
 def initialize_state():
     global CHAIN, CANDIDATES, STORIES
