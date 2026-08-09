@@ -140,6 +140,11 @@ def ui():
     return render_template("second.html")
 
 
+'''for the 5 min interval'''
+
+@app.route("/health")
+def health():
+    return "OK", 200
 
 
 @app.route("/chain", methods=["GET"])
