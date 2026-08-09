@@ -395,6 +395,5 @@ def socket_new_story(data):
     emit("candidates_update", [], broadcast=True)
 
 
-
 if __name__ == "__main__":
-    socketio.run(app, debug=True)
+    socketio.run(app)
